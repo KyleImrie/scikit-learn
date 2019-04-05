@@ -317,11 +317,12 @@ class OneHotEncoder(_BaseEncoder):
 
     def __init__(self, n_values=None, categorical_features=None,
                  categories=None, drop=None, sparse=True, dtype=np.float64,
-                 handle_missing=None, handle_unknown='error'):
+                 handle_missing=None, missing_value=None, handle_unknown='error'):
         self.categories = categories
         self.sparse = sparse
         self.dtype = dtype
         self.handle_missing = handle_missing
+        self.missing_value = missing_value
         self.handle_unknown = handle_unknown
         self.n_values = n_values
         self.categorical_features = categorical_features
@@ -483,7 +484,7 @@ class OneHotEncoder(_BaseEncoder):
             for i in range(len(X)):
                 for j in range(len(X[0])):
                     if X[i][j] != X[i][j]:
-                        X[i][j] = self.handle_missing
+                        X[i][j] = self.missing_value
 
         return X
 
@@ -554,6 +555,10 @@ class OneHotEncoder(_BaseEncoder):
             raise ValueError(msg.format(type(self.drop)))
 
     def _validate_keywords(self):
+        if self.handle_missing not in (None, 'mode', 'value'):
+            msg = ("handle_unknown should be either None, 'mode' or 'value', "
+                   "got {0}.".format(self.handle_missing))
+            raise ValueError(msg)
         if self.handle_unknown not in ('error', 'ignore'):
             msg = ("handle_unknown should be either 'error' or 'ignore', "
                    "got {0}.".format(self.handle_unknown))
